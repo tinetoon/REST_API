@@ -35,7 +35,9 @@ public class ImagesTest {
     // Создаём экземпляр тестовых данных
     private static TestData testData = new TestData();
     private static String host;
+    private static String hostAccount;
     private static String hostImage;
+    private static String userName;
 
     private static String testImageHash;
     private static String testImageDeleteHash;
@@ -65,7 +67,9 @@ public class ImagesTest {
 
         // Инициализируем переменные значениями properties
         host = prop.getProperty("host");
+        hostAccount = prop.getProperty("host.account");
         hostImage = prop.getProperty("host.image");
+        userName = prop.getProperty("username");
 
         testImageHash = prop.getProperty("test.image.hash");
         testImageDeleteHash = prop.getProperty("test.image.delete.hash");
@@ -75,13 +79,42 @@ public class ImagesTest {
     }
 
     @Test
+    @DisplayName("Информация об аккаунте")
+    void getAccountInfoTest() {
+        String nameUrl = given()
+                .log().all() // Логирование запроса
+                .headers(headersAuf)
+                .when()
+                .get(host + hostAccount + userName)
+                .prettyPeek() // Логирование ответа
+                .then()
+                .statusCode(200)
+                .extract()
+                .response()
+                .jsonPath()
+                .getString("data.url");
+
+        assertThat(nameUrl, equalTo("tinetoon"));
+    }
+
+
+    @Test
     @DisplayName("Проверка доступности изображения на Yandex.disk")
     void getUrlTestImageYandex() {
+//        String urlRes =
         given()
+//                .log().all() // Логирование запроса
                 .when()
                 .request("GET", testData.getURL_TEST_IMAGE_YANDEX())
+//                .prettyPeek() // Логирование ответа
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+//                .extract()
+//                .body()
+//                .htmlPath()
+//                .getString("//img[@class='content__image-preview']")
+                ;
+//        System.out.println("INFO: urlRes: " + urlRes);
     }
 
     @Test
@@ -117,42 +150,38 @@ public class ImagesTest {
         assertThat(dataRes.get("name"), equalTo("Two penguins"));
 
         // Устанавливаем значения переменных
-//        testData.setTestImageId(dataRes.get("id"));
-//        testData.setTestImageDeleteHash(dataRes.get("deletehash"));
-//        testData.setTestImageDescription(dataRes.get("description"));
-//        testData.setTestImageName(dataRes.get("name"));
-//        testData.setTestImageLink(dataRes.get("link"));
-//        prop.setProperty("test.image.hash", dataRes.get("id"));
         prop.setProperty("test.image.hash", dataRes.get("id"));
         prop.setProperty("test.image.delete.hash", dataRes.get("deletehash"));
         prop.setProperty("test.image.description", dataRes.get("description"));
         prop.setProperty("test.image.name", dataRes.get("name"));
         prop.setProperty("test.image.link", dataRes.get("link"));
 
-        System.out.println("!!!INFO: testImageHash (предыдущий): " + testImageHash);
-        System.out.println("!!!INFO: testImageDelHash (предыдущий): " + testImageDeleteHash);
+//        System.out.println("!!!INFO: testImageHash (предыдущий): " + testImageHash);
+//        System.out.println("!!!INFO: testImageDelHash (предыдущий): " + testImageDeleteHash);
 
     }
 
     @Test
-    @DisplayName("Проверка доступности картинки")
+    @DisplayName("Проверка информации о картинке")
     void getImagePenguin() {
-        String nameImage = given()
+        String idImage = given()
 //                .log().all() // Логирование всего запроса
                 .log().method()
                 .log().uri()
                 .headers(headersClientId)
                 .when()
-                .request("GET", (testData.getEndPointGetImage() + "IbjIRny"))
-                .prettyPeek() // Логирование ответа
+                .request("GET", (testData.getEndPointGetImage() + prop.getProperty("test.image.id")))
+//                .prettyPeek() // Логирование ответа
                 .then()
                 .statusCode(200)
                 .extract()
                 .response()
                 .jsonPath()
-                .getString("data.description");
+                .getString("data.id");
 
-        System.out.println("INFO: Описание картинки: " + nameImage);
+        assertThat(idImage, equalTo("mGeK2mR"));
+
+//        System.out.println("INFO: ID картинки: " + nameImage);
 
     }
 
@@ -164,7 +193,7 @@ public class ImagesTest {
                 .headers(headersAuf)
                 .when()
 //                .delete(testData.getEndPointDelImage() + testData.getTestImageId())
-                .delete(host + hostImage + "IbjIRny")
+                .delete(host + hostImage + prop.getProperty("test.image.id"))
                 .prettyPeek() // Логирование ответа
                 .then()
                 .statusCode(200);
