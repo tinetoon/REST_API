@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Properties;
+import java.util.*;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -73,15 +72,11 @@ public class RecipesTest {
                 .log().method()
                 .log().uri()
                 .param("apiKey", apiKey)
-//                .param("includeNutrition", true)
                 .param("query", "pasta")
                 .param("maxFat", 25)
                 .param("number", 1)
-//                .contentType("application/json")
-//                .headers("Response Headers:", "Content-Type: application/json")
                 .when()
                 .get(host + "complexSearch")
-//                .get("")
 //                .prettyPeek() // Логирование ответа
                 .then()
                 .statusCode(200)
@@ -90,24 +85,15 @@ public class RecipesTest {
                         .body()
                                 .asString();
 
-//        System.out.println("!!!INFO: Количество жира: " + response);
-
+        // Используем библиотеку jackson для работы с ответом
         JsonNode node = Json.parse(response);
-        System.out.println("!!!INFO: Количество результатов поиска: " + node.get("totalResults"));
-//        System.out.println("!!!INFO: Results: " + node.get("results"));
-        System.out.println("!!!INFO: ID: " + node
-                                                .get("results")
-                                                .get(0)
-                                                .get("id"));
-        System.out.println("!!!INFO: Количество жира : " + node
-                .get("results")
-                .get(0)
-                .get("nutrition")
-                .get("nutrients")
-                .get(0)
-                .get("amount"));
-//        System.out.println("!!!INFO: Количество жира: " + node.get("results.[0].nutrition.nutrients.amount").toString());
+        /*System.out.println("!!!INFO: Количество результатов поиска: " + node.get("totalResults"));
+        System.out.println("!!!INFO: Results: " + node.get("results"));
+        System.out.println("!!!INFO: ID: " + node.get("results").get(0).get("id"));
+        System.out.println("!!!INFO: Количество жира : " + node.get("results").get(0).get("nutrition").get("nutrients").get(0).get("amount"));
+        System.out.println("!!!INFO: Количество жира: " + node.get("results.[0].nutrition.nutrients.amount").toString());*/
 
+        // Получим количество жира в найденном рецепте и количество рецептов
         Double amount = node
                 .get("results")
                 .get(0)
@@ -116,7 +102,57 @@ public class RecipesTest {
                 .get(0)
                 .get("amount")
                 .asDouble();
+        Integer number = node.get("number").asInt();
 
         assertTrue(amount <= 25);
+        assertTrue(number == 1);
+    }
+
+    @Test
+    @DisplayName("Поиск рецептов по питательным веществам")
+    void searchRecipesByNutrients() throws IOException {
+
+        String response = given()
+//                .log().all() // Логирование запроса
+                .log().method()
+                .log().uri()
+                .param("apiKey", apiKey)
+                .param("minVitaminE", 15)
+//                .param("maxVitaminE", 75)
+                .param("number", 3)
+//                .param("random", true)
+                .when()
+                .get(host + "findByNutrients")
+//                .prettyPeek() // Логирование ответа
+                .then()
+                .statusCode(200)
+                .extract()
+                .response()
+                .body()
+                .asString();
+
+        // Используем библиотеку jackson для работы с ответом
+        JsonNode node = Json.parse(response);
+        /*System.out.println("!!!INFO: Количество Витамина Е:" +
+                "\n- рецепт № 1: " + node.get(0).get("vitaminE") +
+                "\n- рецепт № 2: " + node.get(1).get("vitaminE") +
+                "\n- рецепт № 3: " + node.get(2).get("vitaminE"));*/
+
+        /*String value = node.get(0).get("vitaminE").toString();
+        Integer vitaminE = Integer.valueOf(value.replaceAll("[\"mg]", ""));
+        System.out.println("!!!INFO: Количество Витамина Е в рецепте № 1: " + value);*/
+
+        Integer vitaminE_01 = Integer.valueOf(node.get(0).get("vitaminE").toString().replaceAll("[\"mg]", ""));
+        Integer vitaminE_02 = Integer.valueOf(node.get(1).get("vitaminE").toString().replaceAll("[\"mg]", ""));
+        Integer vitaminE_03 = Integer.valueOf(node.get(2).get("vitaminE").toString().replaceAll("[\"mg]", ""));
+
+        /*System.out.println("!!!INFO: Количество Витамина Е:" +
+                "\n- рецепт № 1: " + vitaminE_01 +
+                "\n- рецепт № 2: " + vitaminE_02 +
+                "\n- рецепт № 3: " + vitaminE_03);*/
+
+        assertTrue(vitaminE_01 >= 15);
+        assertTrue(vitaminE_02 >= 15);
+        assertTrue(vitaminE_03 >= 15);
     }
 }
