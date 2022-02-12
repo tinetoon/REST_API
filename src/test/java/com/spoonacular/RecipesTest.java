@@ -1,5 +1,6 @@
 package com.spoonacular;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -7,9 +8,13 @@ import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Класс для тестирования REST API портала spoonacular.com
@@ -62,21 +67,56 @@ public class RecipesTest {
 
     @Test
     @DisplayName("Поиск рецепта")
-    void searchRecipesTest() {
-        given()
-                .log().all() // Логирование запроса
+    void searchRecipesTest() throws IOException {
+        String response = given()
+//                .log().all() // Логирование запроса
+                .log().method()
+                .log().uri()
                 .param("apiKey", apiKey)
 //                .param("includeNutrition", true)
                 .param("query", "pasta")
-                .param("maxFat", "25")
-                .param("number", "2")
+                .param("maxFat", 25)
+                .param("number", 1)
 //                .contentType("application/json")
 //                .headers("Response Headers:", "Content-Type: application/json")
                 .when()
                 .get(host + "complexSearch")
 //                .get("")
-                .prettyPeek() // Логирование ответа
+//                .prettyPeek() // Логирование ответа
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+                .extract()
+                .response()
+                        .body()
+                                .asString();
+
+//        System.out.println("!!!INFO: Количество жира: " + response);
+
+        JsonNode node = Json.parse(response);
+        System.out.println("!!!INFO: Количество результатов поиска: " + node.get("totalResults"));
+//        System.out.println("!!!INFO: Results: " + node.get("results"));
+        System.out.println("!!!INFO: ID: " + node
+                                                .get("results")
+                                                .get(0)
+                                                .get("id"));
+        System.out.println("!!!INFO: Количество жира : " + node
+                .get("results")
+                .get(0)
+                .get("nutrition")
+                .get("nutrients")
+                .get(0)
+                .get("amount"));
+//        System.out.println("!!!INFO: Количество жира: " + node.get("results.[0].nutrition.nutrients.amount").toString());
+
+        Double amount = node
+                .get("results")
+                .get(0)
+                .get("nutrition")
+                .get("nutrients")
+                .get(0)
+                .get("amount")
+                .asDouble();
+
+        assertTrue(amount <= 25);
     }
 }
