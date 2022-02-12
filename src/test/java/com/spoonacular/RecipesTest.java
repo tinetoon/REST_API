@@ -12,7 +12,7 @@ import java.util.*;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -54,12 +54,12 @@ public class RecipesTest {
     @DisplayName("Авторизация")
     void authenticationTest() {
         given()
-                .log().all() // Логирование запроса
+//                .log().all() // Логирование запроса
                 .param("apiKey", apiKey)
                 .param("includeNutrition", true)
                 .when()
                 .get("https://api.spoonacular.com/recipes/716429/information")
-                .prettyPeek() // Логирование ответа
+//                .prettyPeek() // Логирование ответа
                 .then()
                 .statusCode(200);
     }
@@ -118,9 +118,7 @@ public class RecipesTest {
                 .log().uri()
                 .param("apiKey", apiKey)
                 .param("minVitaminE", 15)
-//                .param("maxVitaminE", 75)
                 .param("number", 3)
-//                .param("random", true)
                 .when()
                 .get(host + "findByNutrients")
 //                .prettyPeek() // Логирование ответа
@@ -154,5 +152,40 @@ public class RecipesTest {
         assertTrue(vitaminE_01 >= 15);
         assertTrue(vitaminE_02 >= 15);
         assertTrue(vitaminE_03 >= 15);
+    }
+
+    @Test
+    @DisplayName("Получить информацию о рецепте")
+    void getRecipeInformation() throws IOException {
+
+        String response = given()
+//                .log().all() // Логирование запроса
+                .log().method()
+                .log().uri()
+                .param("apiKey", apiKey)
+                .param("includeNutrition", false)
+                .when()
+                .get(host + prop.getProperty("test.recipes.id") + "/information")
+//                .prettyPeek() // Логирование ответа
+                .then()
+                .statusCode(200)
+                .extract()
+                .response()
+                .body()
+                .asString();
+
+        // Используем библиотеку jackson для работы с ответом
+        JsonNode node = Json.parse(response);
+
+//        System.out.println("!!!INFO: Название рецепта: " + node.get("title"));
+
+        String recipeName = node.get("title").textValue();
+        Integer recipeId = node.get("id").intValue();
+
+        /*System.out.println("!!!INFO: Название рецепта: " + recipeName);
+        System.out.println("!!!INFO: ID рецепта: " + recipeId);*/
+
+        assertThat(recipeName, containsString("Pasta"));
+        assertThat(recipeId, equalTo(716429));
     }
 }
