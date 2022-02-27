@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-import java.util.List;
-
 /**
  * Клас для парсинга ответа сервера c помощью библиотеки jackson
  * Ответственный за создание класса - А.А. Дюжаков

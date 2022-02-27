@@ -21,7 +21,10 @@
     <junit.version>5.8.2</junit.version>
     <!--<allure.version>1.4.4</allure.version>
     <aspectj.version>1.9.7</aspectj.version>-->
+    <jackson-core.version>2.11.4</jackson-core.version>
+    <jackson-annotations.version>2.11.4</jackson-annotations.version>
     <jackson-databind.version>2.11.4</jackson-databind.version>
+    <lombok.version>1.18.22</lombok.version>
   </properties>
 
   <dependencies>
@@ -45,14 +48,31 @@
       <version>${junit.version}</version>
 <!--      <scope>test</scope>-->
     </dependency>
+    <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson-core.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${jackson-annotations.version}</version>
+    </dependency>
     <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>${jackson-databind.version}</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+    </dependency>
   </dependencies>
-
   <build>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
