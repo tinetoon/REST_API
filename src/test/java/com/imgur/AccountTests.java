@@ -16,6 +16,7 @@ import static org.hamcrest.Matchers.lessThan;
 
 /**
  * Класс для тестирования REST API портала imgur.com
+ * Раздел: Account
  * Ответственный за создание класса - А.А. Дюжаков
  * Дата создания: 01.02.2022
  */
