@@ -40,36 +40,25 @@ public class AccountTests extends BaseTest {
     @DisplayName("Запрос стандартной информации о пользователе")
     void accountBaseTest() {
 
-        given()
-//                .header("Authorization", token) // Вынесено в RequestSpecification
-//                .log()
-//                .method()
-//                .log()
-//                .uri()
-                .when()
-                .get("account/{username}", username)
-                .prettyPeek()
-                .then()
-//                .statusCode(200) // Вынесено в ResponseSpecification
-//                .body("success", CoreMatchers.is(true)) // Вынесено в ResponseSpecification
+        ResponseSpecification accountResSpec = resSpec
                 .body("data.url", equalTo(username));
+
+        given(reqSpec, accountResSpec)
+                .get("account/{username}", username)
+                .prettyPeek();
     }
 
     @Test
     @DisplayName("Запрос настроек учетной записи")
     void accountSettingsTest() {
-        Response response = given()
-//                .header("Authorization", token) // Вынесено в RequestSpecification
-                .when()
+
+        ResponseSpecification accountResSpec = resSpec
+                .body("data.account_url", equalTo(username))
+                .body("data.email", equalTo("kkpj6cmnsm@privaterelay.appleid.com"));
+
+        given(reqSpec, accountResSpec)
                 .get("https://api.imgur.com/3/account/me/settings")
                 .prettyPeek()
-                .then()
-//                .statusCode(200) // Вынесено в ResponseSpecification
-//                .body("success", CoreMatchers.is(true)) // Вынесено в ResponseSpecification
-                .body("data.account_url", equalTo("tinetoon"))
-                .extract()
-                .response();
-
-        assertThat(response.jsonPath().get("data.email"), equalTo("kkpj6cmnsm@privaterelay.appleid.com"));
+                .then();
     }
 }

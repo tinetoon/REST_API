@@ -24,7 +24,7 @@ public abstract class BaseTest {
     protected static String username;
     protected static String token;
 
-    private static RequestSpecification reqSpec;
+    protected static RequestSpecification reqSpec;
 
     @BeforeAll
     static void setUp() throws IOException {
