@@ -1,6 +1,9 @@
 package com.imgur;
 
 import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.filter.log.LogDetail;
+import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
 
 import java.io.FileInputStream;
@@ -21,6 +24,8 @@ public abstract class BaseTest {
     protected static String username;
     protected static String token;
 
+    private static RequestSpecification reqSpec;
+
     @BeforeAll
     static void setUp() throws IOException {
 
@@ -30,8 +35,16 @@ public abstract class BaseTest {
         username = prop.getProperty("username");
         token = prop.getProperty("auth.token");
 
+        reqSpec = new RequestSpecBuilder()
+                .setBaseUri(host)
+                .addHeader("Authorization", token)
+                .log(LogDetail.URI)
+                .log(LogDetail.METHOD)
+                .build();
+
         // !!! Разобраться с кодом
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
-        RestAssured.baseURI = host;
+        RestAssured.requestSpecification = reqSpec;
+//        RestAssured.baseURI = host;
     }
 }

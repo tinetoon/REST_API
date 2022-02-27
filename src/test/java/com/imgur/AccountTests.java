@@ -25,10 +25,10 @@ public class AccountTests extends BaseTest {
     static ResponseSpecification resSpec;
 
     @BeforeEach
-    void responseSpecAssert() {
+    void positiveResponseSpecAssert() {
 
         resSpec = new ResponseSpecBuilder()
-                .expectResponseTime(lessThan(2000l))
+                .expectResponseTime(lessThan(3000l))
                 .expectStatusCode(200)
                 .expectBody("success", CoreMatchers.is(true))
                 .build();
@@ -41,17 +41,17 @@ public class AccountTests extends BaseTest {
     void accountBaseTest() {
 
         given()
-                .header("Authorization", token)
-                .log()
-                .method()
-                .log()
-                .uri()
+//                .header("Authorization", token) // Вынесено в RequestSpecification
+//                .log()
+//                .method()
+//                .log()
+//                .uri()
                 .when()
                 .get("account/{username}", username)
                 .prettyPeek()
                 .then()
-//                .statusCode(200)
-//                .body("success", CoreMatchers.is(true))
+//                .statusCode(200) // Вынесено в ResponseSpecification
+//                .body("success", CoreMatchers.is(true)) // Вынесено в ResponseSpecification
                 .body("data.url", equalTo(username));
     }
 
@@ -59,13 +59,13 @@ public class AccountTests extends BaseTest {
     @DisplayName("Запрос настроек учетной записи")
     void accountSettingsTest() {
         Response response = given()
-                .header("Authorization", token)
+//                .header("Authorization", token) // Вынесено в RequestSpecification
                 .when()
                 .get("https://api.imgur.com/3/account/me/settings")
                 .prettyPeek()
                 .then()
-//                .statusCode(200)
-//                .body("success", CoreMatchers.is(true))
+//                .statusCode(200) // Вынесено в ResponseSpecification
+//                .body("success", CoreMatchers.is(true)) // Вынесено в ResponseSpecification
                 .body("data.account_url", equalTo("tinetoon"))
                 .extract()
                 .response();
